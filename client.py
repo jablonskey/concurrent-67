@@ -1,36 +1,32 @@
 import csv
-import socket
+import datetime
 import pickle
+import socket
 import sys
-import numpy
 
 ###
-import time
 
 host = 'localhost'
 port = 8002
 matrix_dimension = int(sys.argv[1])
 number_of_clients = int(sys.argv[2])
-# matrix_dimension = 128
-# number_of_clients = 1
 
-matrix_a = list(csv.reader(open('a.csv'), quoting=csv.QUOTE_NONNUMERIC));
-matrix_b = list(csv.reader(open('b.csv'), quoting=csv.QUOTE_NONNUMERIC));
-matrix_c = list(csv.reader(open('c.csv'), quoting=csv.QUOTE_NONNUMERIC));
+matrix_a = list(csv.reader(open('a.csv'), quoting=csv.QUOTE_NONNUMERIC))
+matrix_b = list(csv.reader(open('b.csv'), quoting=csv.QUOTE_NONNUMERIC))
+matrix_c = list(csv.reader(open('c.csv'), quoting=csv.QUOTE_NONNUMERIC))
 
 client_number = int(sys.argv[3])
-# client_number = 0
 
 height_start = client_number * (matrix_dimension // number_of_clients)
 height_end = height_start + (matrix_dimension // number_of_clients)
 width = matrix_dimension
 
-matrix_temp = [];
-matrix_d = [];
+matrix_temp = []
+matrix_d = []
 counter = 0
 
 print("%s:%s:%s" % (height_start, height_end, matrix_dimension))
-
+start_time = datetime.datetime.now()
 for i in range(height_start, height_end):
     matrix_temp.append([])
     for j in range(0, width):
@@ -49,3 +45,5 @@ for i in range(height_start, height_end):
     s.sendall(pickle.dumps((client_number, i, j, matrix_d[counter][0:j + 1]), protocol=pickle.HIGHEST_PROTOCOL))
     s.close()
     counter += 1
+time_diff = datetime.datetime.now() - start_time
+print("Execution time: %s" % time_diff)
