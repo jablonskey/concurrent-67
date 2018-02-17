@@ -21,7 +21,7 @@ def export_matrix(matrix, output_file):
         writer.writerows(matrix)
 
 
-def random_box_matrix(dimension, max_number=100):
+def random_box_matrix(dimension, max_number=5):
     return [[random.randint(0, max_number) for j in range(dimension)] for i in range(dimension)]
 
 
@@ -38,22 +38,33 @@ s.bind((host, port))
 s.listen(5)
 
 received_parts = 0
+transfer_errors = 0
 result_matrix = [[None for _ in range(matrix_dimension)] for _ in range(matrix_dimension)]
 
-start_time = datetime.datetime.now()
+start_time = 0
 while received_parts < matrix_dimension:
-    conn, addr = s.accept()
-    tm = conn.recv(4096)
-    part = pickle.loads(tm)
+    try:
+        conn, addr = s.accept()
+        tm = conn.recv(32768)
+        if (start_time is 0):
+            start_time = datetime.datetime.now()
+        part = pickle.loads(tm)
 
-    conn.close()
-    # print(part)
-    result_matrix[part[1]][0:part[2] + 1] = part[3]
+    except pickle.UnpicklingError:
+        print('ERR %s in [%s][0:%s]' % (sys.exc_info(), part[1], part[2]))
+        transfer_errors += 1
 
-    received_parts += 1
-    print('id :: %s :: [%s][0:%s] :: total: %s' % (part[0], part[1], part[2], received_parts))
+    finally:
+        conn.close()
+        # print(part)
+        result_matrix[part[1]][0:part[2] + 1] = part[3]
+
+        received_parts += 1
+        print('id :: %s :: [%s][0:%s] :: total: %s' % (part[0], part[1], part[2], received_parts))
 
 time_diff = datetime.datetime.now() - start_time
+if transfer_errors is not 0:
+    print("Errors: ", transfer_errors)
 print("Execution time: %s" % time_diff)
 
 correct_matrix_temp = numpy.matmul(matrix_a, matrix_b).tolist()

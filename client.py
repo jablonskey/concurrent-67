@@ -10,20 +10,17 @@ host = 'localhost'
 port = 8002
 matrix_dimension = int(sys.argv[1])
 number_of_clients = int(sys.argv[2])
-
+client_number = int(sys.argv[3])
 matrix_a = list(csv.reader(open('a.csv'), quoting=csv.QUOTE_NONNUMERIC))
 matrix_b = list(csv.reader(open('b.csv'), quoting=csv.QUOTE_NONNUMERIC))
 matrix_c = list(csv.reader(open('c.csv'), quoting=csv.QUOTE_NONNUMERIC))
-
-client_number = int(sys.argv[3])
+matrix_temp = []
+matrix_d = []
+counter = 0
 
 height_start = client_number * (matrix_dimension // number_of_clients)
 height_end = height_start + (matrix_dimension // number_of_clients)
 width = matrix_dimension
-
-matrix_temp = []
-matrix_d = []
-counter = 0
 
 print("%s:%s:%s" % (height_start, height_end, matrix_dimension))
 start_time = datetime.datetime.now()
